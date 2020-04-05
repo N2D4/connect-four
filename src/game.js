@@ -32,15 +32,15 @@ const Game = {
 
         for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue;
+                if (i === 0 && j === 0) continue;
                 outer: for (let l = 0; l < game.toWin; l++) {
                     for (let m = 0; m < game.toWin; m++) {
                         const k = m - l;
                         if ((game.grid[move+k*i] && game.grid[move+k*i][c+k*j]) !== color) continue outer;
                     }
                     game.hasEnded = true;
+                    return 'win';
                 }
-                return 'win';
             }
         }
 

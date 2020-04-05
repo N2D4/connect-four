@@ -56,7 +56,7 @@ async function gameResult(color, res) {
     await wait(50);
     switch (res) {
         case 'win': {
-            alrt(`${color} wins the game!`);
+            alrt(`${cap(color)} wins the game!`);
             break;
         }
         case 'draw': {

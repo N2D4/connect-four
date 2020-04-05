@@ -51,6 +51,19 @@ io.on('connection', (socket) => {
         if (game) game[0] = game[0].filter(a => a !== socket);
     });
 
+    on('chat', (msg) => {
+        if (typeof msg !== 'string') err(`Type should be string!`);
+        if (msg.length > 50) err(`This message is too long!`);
+
+        const game = games.get(id);
+        if (!game) err(`You can't chat while not in a game!`);
+        const color = game[1].colors[game[0].indexOf(socket)];
+
+        for (const s of game[0].filter(a => a)) {
+            s.emit('chat', color, msg);
+        }
+    });
+
     on('ljoin', (data) => {
         if (typeof data !== 'string') err(`id not string: ${id}`);
         if (!validGameIDs.includes(data)) return msg(`This game ID is not valid!`);
@@ -97,14 +110,12 @@ io.on('connection', (socket) => {
             if (res) {
                 update(s, game[1]);
             }
-            if (res === 'win') {
-                s.emit('alert-soon', `${cap(color)} wins!`);
-            } else if (res === 'draw') {
-                s.emit('alert-soon', `The game ends in a draw!`);
-            }
         }
 
         if (res === 'win' || res === 'draw') {
+            for (const s of game[0].filter(a => a)) {
+                s.emit('game-result', color, res);
+            }
             const oldGame = game[1];
             setTimeout(() => {
                 if (games.get(id) !== game || game[1] !== oldGame) return;
@@ -125,10 +136,6 @@ httpServer.listen(port, () => console.log(`Connect Four listening at http://loca
 
 function update(socket, game) {
     socket.emit('update', game);
-}
-
-function cap(str) {
-    return str[0].toUpperCase() + str.substr(1);
 }
 
 

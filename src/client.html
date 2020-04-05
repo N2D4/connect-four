@@ -9,6 +9,10 @@
                 --bg-col: green;
             }
 
+            .hidden {
+                visibility: hidden;
+            }
+
             html {
                 font-family: 'Roboto', sans-serif;
                 color: white;
@@ -47,7 +51,6 @@
                 max-width: 13vh;
                 max-height: 13vh;
                 border-radius: 100%;
-                transition: background-color ease 0.2s;
             }
 
             .item.red {
@@ -60,6 +63,31 @@
 
             .item.none {
                 background-color: var(--bg-col);
+            }
+
+            #chatarea {
+                position: absolute;
+                right: 8px;
+                bottom: 8px;
+                min-width: 100px;
+                width: 20vw;
+                max-width: 500px;
+                opacity: 0.8;
+                display: flex;
+                flex-direction: column;
+                pointer-events: none;
+            }
+
+            #chat {
+                border: 0px;
+                width: 100%;
+                pointer-events: initial;
+            }
+
+            .message {
+                font-size: 75%;
+                transition: opacity 2s ease;
+                opacity: 1;
             }
         </style>
         <script defer src="client.js"></script>
@@ -76,6 +104,9 @@
                 <div class="item red"></div>
                 <div class="item yellow"></div>
             </div>
+        </div>
+        <div id="chatarea" class="hidden">
+            <input type="text" id="chat" maxlength="50">
         </div>
     </body>
 </html>

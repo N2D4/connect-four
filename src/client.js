@@ -3,31 +3,61 @@ import "regenerator-runtime/runtime.js";
 import Game from './game.js';
 
 
+const urlParams = new URLSearchParams(window.location.search);
 const socket = socketio();
+let game;
 
 setTimeout(async () => {
-    socket.on('alert', (...args) => alert(...args));
-    socket.on('alert-soon', (...args) => setTimeout(() => alert(...args), 50));
+    socket.on('alert', (...args) => alrt(...args));
     socket.on('reload', () => location.reload(true));
     socket.on('update', updateGame);
-    socket.on('disconnect', () => (alert('You disconnected!'), location.reload(true)));
+    socket.on('disconnect', () => (alrt('You disconnected!'), location.reload(true)));
+    socket.on('game-result', (color, result) => gameResult(color, result));
+    socket.on('chat', (by, msg) => {
+        chatMsg(`${cap(by)}> ${msg}`);
+    });
 
     
-    const urlParams = new URLSearchParams(window.location.search);
     let gameId = urlParams.get('id');
-    while (!gameId) {
-        gameId = prompt('Please enter a game ID');
-        if (gameId) break;
-        alert(`Please enter an ID!`);
-        await wait(500);
+    if (gameId) {
+        socket.emit('ljoin', String(gameId), 5, 6, 2);
+        document.getElementById('chatarea').classList.remove('hidden');
+        document.getElementById('chat').addEventListener('keypress', (e) => {
+            if (e.key === "Enter") {
+                const chat = document.getElementById('chat');
+                if (chat.value !== '') {
+                    socket.emit('chat', chat.value);
+                    chat.value = '';
+                }
+            }
+        });
+    } else {
+        game = Game.newGame(
+            urlParams.get('width') || 7,
+            urlParams.get('height') || 6,
+            (urlParams.get('colors') || 'red,yellow').split(','),
+            urlParams.get('toWin') || 4,
+        );
     }
-    socket.emit('ljoin', String(gameId), 5, 6, 2);
 
 }, 500);
 
 
 async function wait(ms) {
     return await new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function gameResult(color, res) {
+    switch (res) {
+        case 'win': {
+            alrt(`${color} wins the game!`);
+            break;
+        }
+        case 'draw': {
+            alrt(`The game has ended in a draw!`);
+            break;
+        }
+    }
 }
 
 
@@ -50,5 +80,25 @@ function updateGame(gameState) {
         });
         game.appendChild(rowel);
     }
+}
+
+function cap(str) {
+    return str[0].toUpperCase() + str.substr(1);
+}
+
+function alrt(str) {
+    chatMsg(str);
+    alert(str);
+}
+
+function chatMsg(msg, color='') {
+    const m = document.createElement('div');
+    m.innerText = msg;
+    m.classList.add('message');
+    if (color) m.style.color = color;
+    setTimeout(() => {
+        m.style.opacity = "0";
+    }, 10000);
+    document.getElementById('chat').insertAdjacentElement('beforebegin', m);
 }
 

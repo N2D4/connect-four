@@ -16,5 +16,6 @@ module.exports = {
     "rules": {
         "no-unused-vars": 'off',
         "no-constant-condition": 'off',
+        "no-unsafe-finally": 'off',
     }
 };

@@ -1,25 +1,36 @@
 import socketio from 'socket.io-client';
 import "regenerator-runtime/runtime.js";
 import Game from './game.js';
-
+import Bot from './bot.js';
 
 const urlParams = new URLSearchParams(window.location.search);
-const socket = socketio();
+let socket;
 let localGame;
+const localBotColors = (urlParams.get('bots') || 'red,yellow').split(',');
+
+window.takeback = () => {
+    Game.takeback(localGame);
+    updateGame(localGame);
+};
+
+window.setSeed = (s) => {
+    Bot.seed = s;
+};
 
 setTimeout(async () => {
-    socket.on('alert', (...args) => alrt(...args));
-    socket.on('reload', () => location.reload(true));
-    socket.on('update', updateGame);
-    socket.on('disconnect', () => (alrt('You disconnected!'), location.reload(true)));
-    socket.on('game-result', (color, result) => gameResult(color, result));
-    socket.on('chat', (by, msg) => {
-        chatMsg(`${cap(by)}> ${msg}`);
-    });
-
-    
     let gameId = urlParams.get('id');
     if (gameId) {
+        socket = socketio();
+
+        socket.on('alert', (...args) => alrt(...args));
+        socket.on('reload', () => location.reload(true));
+        socket.on('update', updateGame);
+        socket.on('disconnect', () => (alrt('You disconnected!'), location.reload(true)));
+        socket.on('game-result', (color, result) => gameResult(color, result));
+        socket.on('chat', (by, msg) => {
+            chatMsg(`${cap(by)}> ${msg}`);
+        });
+
         socket.emit('ljoin', String(gameId), 5, 6, 2);
         document.getElementById('chatarea').classList.remove('hidden');
         document.getElementById('chat').addEventListener('keypress', (e) => {
@@ -71,6 +82,7 @@ function updateGame(gameState) {
     const game = document.getElementById('game');
     game.innerHTML = "";
     console.log('Game state:', gameState);
+    const isBot = localBotColors.includes(Game.nextColor(localGame));
     for (let i = 0; i < gameState.grid.length; i++) {
         const row = gameState.grid[i];
         let all = '';
@@ -80,26 +92,38 @@ function updateGame(gameState) {
         const rowel = document.createElement('div');
         rowel.innerHTML = all;
         rowel.classList.add('row');
-        rowel.addEventListener('click', () => {
-            console.log(`Played a move! ${i}`);
+        if (!gameState.hasEnded) {
             if (localGame) {
-                const color = Game.nextColor(localGame);
-                const res = Game.play(localGame, i);
-                updateGame(localGame);
-                if (['win', 'draw'].includes(res)) {
-                    gameResult(color, res);
-                    const rem = () => {
-                        resetLocalGame();
-                        document.body.removeEventListener('click', rem);
-                    };
-                    document.body.addEventListener('click', rem);
+                if (!isBot) {
+                    rowel.addEventListener('click', () => playLocalMove(i));
                 }
             } else {
-                socket.emit('play', i);
+                rowel.addEventListener('click', () => socket.emit('play', i));
             }
-        });
+        }
         game.appendChild(rowel);
     }
+    if (!gameState.hasEnded && localGame && isBot) Promise.all([wait(500), playBot()]).then(a => playLocalMove(a[1]));
+}
+
+function playLocalMove(move) {
+    console.log(`Played local move: ${move}`);
+    const color = Game.nextColor(localGame);
+    const res = Game.play(localGame, move);
+    updateGame(localGame);
+    if (['win', 'draw'].includes(res)) {
+        gameResult(color, res);
+        const rem = () => {
+            resetLocalGame();
+            document.body.removeEventListener('click', rem);
+        };
+        document.body.addEventListener('click', rem);
+    }
+}
+
+async function playBot() {
+    await wait(50);
+    return Bot.findBestMove(localGame, 6);
 }
 
 function cap(str) {

@@ -1,0 +1,29 @@
+{
+  "name": "connect-four",
+  "version": "1.0.0",
+  "description": "Speedrunning Connect Four",
+  "main": "main.js",
+  "scripts": {
+    "build": "babel src -d out",
+    "start": "npm run build && node out/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/N2D4/connect-four.git"
+  },
+  "author": "Stan Wohlwend",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/N2D4/connect-four/issues"
+  },
+  "homepage": "https://github.com/N2D4/connect-four#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

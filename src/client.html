@@ -46,7 +46,6 @@
                 height: 11vw;
                 max-width: 13vh;
                 max-height: 13vh;
-                background-color: var(--bg-col);
                 border-radius: 100%;
             }
 
@@ -57,18 +56,22 @@
             .item.yellow {
                 background-color: yellow;
             }
+
+            .item.none {
+                background-color: var(--bg-col);
+            }
         </style>
         <script defer src="client.js"></script>
     </head>
     <body>
         <div id="game">
             <div class="row">
-                <div class="item"></div>
-                <div class="item"></div>
+                <div class="item none"></div>
+                <div class="item none"></div>
                 <div class="item red"></div>
             </div>
             <div class="row">
-                <div class="item"></div>
+                <div class="item none"></div>
                 <div class="item red"></div>
                 <div class="item yellow"></div>
             </div>

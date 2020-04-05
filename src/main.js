@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
     on('disconnect', () => {
         console.log(`Socket disconnected ${socket.id}`);
         const game = games.get(id);
-        if (game) game[0] = game[0].filter(a => a !== socket);
+        if (game) game[0] = game[0].map(a => a === socket ? null : a);
     });
 
     on('chat', (msg) => {

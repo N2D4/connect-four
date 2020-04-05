@@ -31,10 +31,13 @@ const Game = {
         game.turnCount++;
 
         for (let i = -1; i <= 1; i++) {
-            outer: for (let j = -1; j <= 1; j++) {
+            for (let j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) continue;
-                for (let k = 0; k < game.toWin; k++) {
-                    if ((game.grid[move+k*i] && game.grid[move+k*i][c+k*j]) !== color) continue outer;
+                outer: for (let l = 0; l < game.toWin; l++) {
+                    for (let m = 0; m < game.toWin; m++) {
+                        const k = m - l;
+                        if ((game.grid[move+k*i] && game.grid[move+k*i][c+k*j]) !== color) continue outer;
+                    }
                 }
                 game.hasEnded = true;
                 return 'win';

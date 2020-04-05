@@ -38,8 +38,8 @@ const Game = {
                         const k = m - l;
                         if ((game.grid[move+k*i] && game.grid[move+k*i][c+k*j]) !== color) continue outer;
                     }
+                    game.hasEnded = true;
                 }
-                game.hasEnded = true;
                 return 'win';
             }
         }

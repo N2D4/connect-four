@@ -100,7 +100,8 @@ io.on('connection', (socket) => {
         if (!game) err(`You're not in a game!`);
 
         const color = game[1].colors[game[0].indexOf(socket)];
-        const res = Game.play(game[1], color, where);
+        if (color !== Game.nextColor(game[1])) return;
+        const res = Game.play(game[1], where);
 
         if (!res) {
             update(socket, game[1]);

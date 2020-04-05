@@ -1,4 +1,4 @@
-export default {
+const Game = {
     colors: ['red', 'yellow'],
 
     newGame(width=7, height=6, colors=['red', 'yellow'], toWin=4) {
@@ -15,8 +15,12 @@ export default {
         };
     },
 
-    play(game, color, move) { // : false | 'legal' | 'win' | 'draw'
-        if (game.colors[game.turnCount % game.colors.length] !== color) return false;
+    nextColor(game) {
+        return game.colors[game.turnCount % game.colors.length];
+    },
+
+    play(game, move) { // : false | 'legal' | 'win' | 'draw'
+        const color = Game.nextColor(game);
         if (game.hasEnded) return false;
         if (!Number.isInteger(move) || move < 0 || move >= game.grid.length) return false;
         let c = 0;
@@ -44,6 +48,7 @@ export default {
         return 'legal';
     }
 };
+export default Game;
 
 function range(end) {
     return [...new Array(end).keys()];

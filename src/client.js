@@ -5,7 +5,7 @@ import Game from './game.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const socket = socketio();
-let game;
+let localGame;
 
 setTimeout(async () => {
     socket.on('alert', (...args) => alrt(...args));
@@ -32,12 +32,7 @@ setTimeout(async () => {
             }
         });
     } else {
-        game = Game.newGame(
-            urlParams.get('width') || 7,
-            urlParams.get('height') || 6,
-            (urlParams.get('colors') || 'red,yellow').split(','),
-            urlParams.get('toWin') || 4,
-        );
+        resetLocalGame();
     }
 
 }, 500);
@@ -47,7 +42,18 @@ async function wait(ms) {
     return await new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function gameResult(color, res) {
+function resetLocalGame() {
+    localGame = Game.newGame(
+        urlParams.get('width') || 7,
+        urlParams.get('height') || 6,
+        (urlParams.get('colors') || 'red,yellow').split(','),
+        urlParams.get('toWin') || 4,
+    );
+    updateGame(localGame);
+}
+
+async function gameResult(color, res) {
+    await wait(50);
     switch (res) {
         case 'win': {
             alrt(`${color} wins the game!`);
@@ -76,7 +82,21 @@ function updateGame(gameState) {
         rowel.classList.add('row');
         rowel.addEventListener('click', () => {
             console.log(`Played a move! ${i}`);
-            socket.emit('play', i)
+            if (localGame) {
+                const color = Game.nextColor(localGame);
+                const res = Game.play(localGame, i);
+                updateGame(localGame);
+                if (['win', 'draw'].includes(res)) {
+                    gameResult(color, res);
+                    const rem = () => {
+                        resetLocalGame();
+                        document.body.removeEventListener('click', rem);
+                    };
+                    document.body.addEventListener('click', rem);
+                }
+            } else {
+                socket.emit('play', i);
+            }
         });
         game.appendChild(rowel);
     }

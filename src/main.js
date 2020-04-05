@@ -6,7 +6,7 @@ import Game from './game.js';
 
 const validGameIDs = ['abc', 'test', 'admin', 'cool', 'these', 'are', 'random', 'names', '1337', 'multiplayer'].concat([...new Array(100).keys()].map((_, i) => `l${i}`));
 
-const games = new Map(); // <string, [[socket | null, socket | null], ('red' | 'yellow' | null)[][]]>
+const games = new Map(); // <string, [[socket | null, socket | null], Game]>
 
 const app = express();
 const httpServer = require('http').createServer(app);
@@ -43,10 +43,19 @@ io.on('connection', (socket) => {
         throw new Error(`Client error: ${str}`);
     }
 
-    on('ljoin', (id) => {
-        if (typeof id !== 'string') err(`id not string: ${id}`);
-        if (!validGameIDs.includes(id)) return msg(`This game ID is not valid!`);
+    let id;
 
+    on('disconnect', () => {
+        console.log(`Socket disconnected ${socket.id}`);
+        const game = games.get(id);
+        if (game) game[0] = game[0].filter(a => a !== socket);
+    });
+
+    on('ljoin', (data) => {
+        if (typeof data !== 'string') err(`id not string: ${id}`);
+        if (!validGameIDs.includes(data)) return msg(`This game ID is not valid!`);
+
+        id = data;
         if (!games.has(id)) games.set(id, [[null, null], Game.newGame()]);
         const game = games.get(id);
         game[0] = game[0].map(s => s !== null && s.connected ? s : null);
@@ -69,7 +78,45 @@ io.on('connection', (socket) => {
         for (const s of game[0].filter(a => a)) {
             update(s, game[1]);
         }
-    })
+    });
+
+    on('play', (where) => {
+        if (!Number.isInteger(where)) err(`Invalid type!`);
+
+        const game = games.get(id);
+        if (!game) err(`You're not in a game!`);
+
+        const color = game[1].colors[game[0].indexOf(socket)];
+        const res = Game.play(game[1], color, where);
+
+        if (!res) {
+            update(socket, game[1]);
+        }
+
+        for (const s of game[0].filter(a => a)) {
+            if (res) {
+                update(s, game[1]);
+            }
+            if (res === 'win') {
+                s.emit('alert-soon', `${cap(color)} wins!`);
+            } else if (res === 'draw') {
+                s.emit('alert-soon', `The game ends in a draw!`);
+            }
+        }
+
+        if (res === 'win' || res === 'draw') {
+            const oldGame = game[1];
+            setTimeout(() => {
+                if (games.get(id) !== game || game[1] !== oldGame) return;
+                game[0].push(game[0].shift());
+                game[1] = Game.newGame();
+
+                for (const s of game[0].filter(a => a)) {
+                    update(s, game[1]);
+                }
+            }, 5000);
+        }
+    });
 });
 
 httpServer.listen(port, () => console.log(`Connect Four listening at http://localhost:${port}`));
@@ -78,6 +125,10 @@ httpServer.listen(port, () => console.log(`Connect Four listening at http://loca
 
 function update(socket, game) {
     socket.emit('update', game);
+}
+
+function cap(str) {
+    return str[0].toUpperCase() + str.substr(1);
 }
 
 

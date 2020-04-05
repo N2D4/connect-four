@@ -1,2 +1,2 @@
 # connect-four
-Speedrunning Connect Four. Made this in four hours
+Speedrunning Connect Four. Made this in a few hours don't expect any nice code

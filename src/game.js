@@ -11,13 +11,10 @@ const Game = {
 
     newGame(width=7, height=6, colors=['red', 'yellow'], toWin=4) {
         return {
-            grid: range(7).map(_ => range(6).map(_ => 'none')),
-            colors: [
-                'red',
-                'yellow'
-            ],
+            grid: range(width).map(_ => range(height).map(_ => 'none')),
+            colors: colors,
             hasEnded: false,
-            toWin: 4,
+            toWin: toWin,
             totalCells: width * height,
             turns: [],
         };

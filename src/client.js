@@ -83,7 +83,7 @@ function updateGame(gameState) {
     const game = document.getElementById('game');
     game.innerHTML = "";
     console.log('Game state:', gameState);
-    const isBot = localBotColors.includes(Game.nextColor(localGame));
+    const isBot = localGame && localBotColors.includes(Game.nextColor(localGame));
     for (let i = 0; i < gameState.grid.length; i++) {
         const row = gameState.grid[i];
         let all = '';

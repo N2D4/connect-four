@@ -6,7 +6,8 @@ import Bot from './bot.js';
 const urlParams = new URLSearchParams(window.location.search);
 let socket;
 let localGame;
-const localBotColors = (urlParams.get('bots') || 'red,yellow').split(',');
+const localBotColors = (urlParams.get('bots') || 'red').split(',');
+const botTriesDraw = (urlParams.get('trydraw') || 'false') === 'true'; // whether bot should prefer safe strats that usually draw instead of risky strats that might win
 
 window.takeback = () => {
     Game.takeback(localGame);
@@ -123,7 +124,7 @@ function playLocalMove(move) {
 
 async function playBot() {
     await wait(50);
-    return Bot.findBestMove(localGame, 6);
+    return Bot.findBestMove(localGame, (botTriesDraw ? 9 : 6), botTriesDraw ? 0 : 1, 6);
 }
 
 function cap(str) {

@@ -17,6 +17,15 @@ export function sfc32(a, b, c, d) {
     }
 }
 
+// https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+export function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 
 export function weightedRandom(arr /* : [T, number][] */, random = () => Math.random()) {
     const sum = arr.map(a => a[1]).reduce((a, b) => a + b, 0);

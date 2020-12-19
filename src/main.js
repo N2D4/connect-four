@@ -10,7 +10,7 @@ const games = new Map(); // <string, [[socket | null, socket | null], Game]>
 
 const app = express();
 const httpServer = require('http').createServer(app);
-const io = socketio.listen(httpServer);
+const io = socketio(httpServer);
 const port = process.env.PORT || 3000;
 
 app.get('/', (req, res) => res.sendFile(path.resolve(process.cwd(), 'src/client.html')));

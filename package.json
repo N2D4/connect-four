@@ -4,7 +4,9 @@
   "description": "Speedrunning Connect Four",
   "main": "main.js",
   "scripts": {
-    "build": "rimraf out && babel src -d out && webpack ./out/client.js --mode production -o out/client_bundle.js",
+    "build:dev": "rimraf out && babel src -d out && webpack ./out/client.js --mode development -o out --output-filename client_bundle.js",
+    "start:dev": "npm run build:dev && NODE_ENV=development node out/main.js",
+    "build": "rimraf out && babel src -d out && webpack ./out/client.js --mode production -o out --output-filename client_bundle.js",
     "start": "npm run build && node out/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,24 +15,23 @@
     "url": "git+https://github.com/N2D4/connect-four.git"
   },
   "author": "Stan Wohlwend",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/N2D4/connect-four/issues"
   },
   "homepage": "https://github.com/N2D4/connect-four#readme",
   "devDependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.12.3",
-    "@babel/preset-env": "^7.12.1",
-    "eslint": "^7.13.0",
-    "webpack": "^5.4.0",
-    "webpack-cli": "^4.2.0"
+    "@babel/cli": "^7.13.0",
+    "@babel/core": "^7.13.1",
+    "@babel/preset-env": "^7.13.0",
+    "eslint": "^7.20.0",
+    "webpack": "^5.24.0",
+    "webpack-cli": "^4.5.0"
   },
   "dependencies": {
     "express": "^4.17.1",
     "regenerator-runtime": "^0.13.7",
     "rimraf": "^3.0.2",
-    "socket.io": "^3.0.1",
-    "socket.io-client": "^3.0.1"
+    "socket.io": "^3.1.1",
+    "socket.io-client": "^3.1.1"
   }
 }
